@@ -2,9 +2,11 @@ import java.util.ArrayList;
 
 class Main {
     public static void main(String[] args) {
-        
-        Character[] a = {'a', 'b'};
-        
+        testRegExp();
+    }
+
+    public static void testMachine(){
+        Character[] a = { 'a', 'b' };
 
         Machine<String> m = new Machine<String>(a);
 
@@ -14,9 +16,11 @@ class Main {
         m.addTransition(new Transition<String>("s3", 'a', "s4"));
 
         System.out.println(m.getLanguageForLength(6));
+    }
 
-        //boolean accept = m.accept("ba");
-        //System.out.println(accept);
+    public static void testRegExp(){
+        RegularExpression re = new RegularExpression("a|b");
+        System.out.println(re.accept("a"));
     }
 }
 
