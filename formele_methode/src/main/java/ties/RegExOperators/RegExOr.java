@@ -1,4 +1,4 @@
-package RegExOperators;
+package ties.RegExOperators;
 
 public class RegExOr implements RegExOperator{
     RegExOperator left;

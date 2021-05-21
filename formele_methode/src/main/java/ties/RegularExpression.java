@@ -1,7 +1,8 @@
+package ties;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import RegExOperators.*;
+import ties.RegExOperators.*;
 
 public class RegularExpression {
 
@@ -9,13 +10,13 @@ public class RegularExpression {
     private String expression;
     private ArrayList<Character> language = new ArrayList<>();
     private ArrayList<Character> operators = new ArrayList<>(Arrays.asList('|', '+', '*', '.', '(', ')'));
-    RegExOperator op;
+    private ArrayList<RegExOperator> ops = new ArrayList<>();
 
     public RegularExpression(String exp) {
         this.expression = exp;
         filterLanguage();
-        op = createOperator(this.expression);
-        System.out.println(op);
+        ops = createOperators(this.expression);
+        System.out.println(ops);
     }
 
     public void filterLanguage() {
@@ -25,6 +26,20 @@ public class RegularExpression {
                 language.add(c);
             }
         }
+    }
+
+    public ArrayList<RegExOperator> createOperators(String exp){
+        ArrayList<RegExOperator> ops = new ArrayList<>();
+
+        for(int i = 0 ; i < exp.length() ; i++){
+            char c = exp.charAt(i);
+
+            if(c == '('){
+                
+            }
+        }
+
+        return ops;
     }
 
     public RegExOperator createOperator(String exp) {
@@ -80,11 +95,11 @@ public class RegularExpression {
     }
 
     public boolean accept(String word) {
-        for (int i = 0; i < word.length(); i++) {
-            if (!op.accept(word.charAt(i))) {
-                return false;
-            }
-        }
+        // for (int i = 0; i < word.length(); i++) {
+        //     if (!op.accept(word.charAt(i))) {
+        //         return false;
+        //     }
+        // }
         return true;
     }
 }

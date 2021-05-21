@@ -1,3 +1,5 @@
+package ties;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -8,6 +10,7 @@ public class Machine<T extends Comparable<T>> {
     
     ArrayList<Character> alphabet;
     ArrayList<Transition<T>> transitions = new ArrayList<>();
+    T beginState, endState;
     
     public Machine(Character[] alphabet){
         ArrayList<Character> al = new ArrayList<>();
@@ -25,6 +28,7 @@ public class Machine<T extends Comparable<T>> {
     public void addTransition(Transition<T> trans){
         transitions.add(trans);
         Collections.sort(transitions);
+        // System.out.println(transitions);
     }
 
     public boolean accept(String word){
@@ -37,29 +41,27 @@ public class Machine<T extends Comparable<T>> {
         }
         // check transities voor accepteren
         // T startState = transitions.get(0).fromState;
-        T endState = transitions.get(transitions.size() - 1).toState;
-
-        T state = transitions.get(0).fromState;
+        
+        T state = beginState;
         for(int i = 0 ; i < word.length(); i++){
             Character s = word.charAt(i);
 
-            if(state.equals(endState)){
-                return true;
+            ArrayList<Transition<T>> transits = findTransitionWithStartState(state);
+            // CASE DFA
+            for(Transition<T> trans : transits){
+                if(trans.acceptor == s){
+                    state = trans.toState;
+                }
             }
-
-            Transition<T> transition = findTransitionWithStartState(state);
-            if(transition.acceptor == s){
-                state = transition.toState;
-            } else {
-                state = transitions.get(0).fromState;
-            }
+            // if (trans.acceptor == s) {
+            //     state = trans.toState;
+            // } else {
+            //     state = transitions.get(0).fromState;
+            // }
+            
         }
 
-        if(state != transitions.get(transitions.size() - 1).toState){
-            return false;
-        }
-
-        return true;
+        return state == endState;
     }
 
     public ArrayList<String> getLanguageForLength(int length){
@@ -95,14 +97,15 @@ public class Machine<T extends Comparable<T>> {
         return words;
     }
 
-    private Transition<T> findTransitionWithStartState(T startState){
+    private ArrayList<Transition<T>> findTransitionWithStartState(T startState){
+        ArrayList<Transition<T>> transits = new ArrayList<>();
         //System.out.println("Start finding");
         for(Transition<T> trans : transitions){
             //System.out.println("Comparing: " + trans.fromState + " & " + startState);
             if(trans.fromState.equals(startState)){
-                return trans;
+                transits.add(trans);
             }
         }
-        return null;
+        return transits;
     }
 }

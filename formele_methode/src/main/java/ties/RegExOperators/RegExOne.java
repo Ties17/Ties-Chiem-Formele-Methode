@@ -1,4 +1,4 @@
-package RegExOperators;
+package ties.RegExOperators;
 
 public class RegExOne implements RegExOperator{
     private char acceptor;
