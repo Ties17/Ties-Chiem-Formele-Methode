@@ -8,17 +8,17 @@ class App {
     public static void testMachine() {
         Character[] a = { 'a', 'b' };
 
-        Machine<String> m = new Machine<String>(a);
-        m.beginState = "0";
-        m.endState = "0";
+        Machine<Integer> m = new Machine<Integer>(a);
+        m.addBeginState(0);
+        m.addEndState(0);
+        
+        m.addTransition(new Transition<Integer>(0, 'a', 0));
+        m.addTransition(new Transition<Integer>(0, 'b', 1));
 
-        m.addTransition(new Transition<String>("0", 'a', "0"));
-        m.addTransition(new Transition<String>("0", 'b', "1"));
+        m.addTransition(new Transition<Integer>(1, 'a', 1));
+        m.addTransition(new Transition<Integer>(1, 'b', 0));
 
-        m.addTransition(new Transition<String>("1", 'a', "1"));
-        m.addTransition(new Transition<String>("1", 'b', "0"));
-
-        System.out.println(m.accept("abbbab"));
+        System.out.println(m.getLanguageForLength(5));
     }
 
     public static void testRegExp() {
