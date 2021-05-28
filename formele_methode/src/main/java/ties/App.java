@@ -10,13 +10,16 @@ class App {
 
         Machine<Integer> m = new Machine<Integer>(a);
         m.addBeginState(0);
-        m.addEndState(0);
+        m.addEndState(2);
         
-        m.addTransition(new Transition<Integer>(0, 'a', 0));
-        m.addTransition(new Transition<Integer>(0, 'b', 1));
+        m.addTransition(new Transition<Integer>(0, 'a', 1));
+        m.addTransition(new Transition<Integer>(0, 'b', -1));
 
-        m.addTransition(new Transition<Integer>(1, 'a', 1));
-        m.addTransition(new Transition<Integer>(1, 'b', 0));
+        m.addTransition(new Transition<Integer>(1, 'b', 1));
+        m.addTransition(new Transition<Integer>(1, 'a', 2));
+
+        m.addTransition(new Transition<Integer>(2, 'b', -1));
+        m.addTransition(new Transition<Integer>(2, 'a', -1));
 
         System.out.println(m.getLanguageForLength(5));
     }

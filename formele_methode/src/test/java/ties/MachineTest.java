@@ -60,12 +60,38 @@ public class MachineTest {
     public void MachineCreatorEndsWith() {
         Character[] a = { 'a', 'b' };
 
-        Machine<Integer> m = MachineCreator.endsWith("aab", a);
+        Machine<Integer> m = MachineCreator.endsWith("abab", a);
+
+        System.out.println(m.transitions);
+
+        System.out.println(m.getLanguageForLength(5));
+
+        GraphizGenerator<Integer> g = new GraphizGenerator<>();
+        g.GenerateGraphizContent(m);
+
+        // assertTrue(m.getLanguageForLength(3).size() == 3);
+    }
+
+    @Test
+    public void MachineCreatorContains() {
+        Character[] a = { 'a', 'b' };
+
+        Machine<Integer> m = MachineCreator.contains("bab", a);
 
         System.out.println(m.transitions);
 
         System.out.println(m.getLanguageForLength(4));
 
-        // assertTrue(m.getLanguageForLength(3).size() == 3);
+        assertTrue(m.getLanguageForLength(4).size() == 4);
+    }
+
+    @Test
+    public void MachineCreatorFindPattern() {
+        String test = "babbab";
+
+        System.out.println(MachineCreator.findPatterns(test));
+
+        // assertTrue();
+
     }
 }
