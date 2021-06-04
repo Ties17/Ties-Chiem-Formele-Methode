@@ -20,6 +20,7 @@ public class MachineTest {
         m.addTransition(new Transition<Integer>(1, 'a', 1));
         m.addTransition(new Transition<Integer>(1, 'b', 0));
 
+        new GraphizGenerator<>(m);
         assertTrue(m.accept("bab"));
     }
 
@@ -44,7 +45,102 @@ public class MachineTest {
         m.addTransition(new Transition<Integer>(3, 'a', 0));
         m.addTransition(new Transition<Integer>(3, 'b', 3));
 
-        assertTrue(m.accept("aabbb"));
+        new GraphizGenerator<>(m);
+
+        assertTrue(m.accept("abb"));
+    }
+
+    @Test
+    public void MachineNDFA(){
+        Character[] a = { 'a', 'b' };
+
+        Machine<Integer> m = new Machine<Integer>(a);
+        m.addBeginState(0);
+        m.addEndState(0);
+
+        m.addTransition(new Transition<Integer>(0, 'a', 1));
+
+        m.addTransition(new Transition<Integer>(1, 'b', 2));
+        m.addTransition(new Transition<Integer>(1, 'b', 3));
+        m.addTransition(new Transition<Integer>(1, 'a', 4));
+
+        m.addTransition(new Transition<Integer>(2, 'a', 0));
+
+        m.addTransition(new Transition<Integer>(3, 'a', 4));
+
+        m.addTransition(new Transition<Integer>(4, 'a', 2));
+
+        new GraphizGenerator<>(m);
+
+        assertTrue(m.accept("aaaa"));
+    }
+
+    @Test
+    public void MachineNDFAMultipleStarts() {
+        Character[] a = { 'a', 'b' };
+
+        Machine<Integer> m = new Machine<Integer>(a);
+        m.addBeginState(0);
+        m.addBeginState(3);
+        m.addEndState(0);
+
+        m.addTransition(new Transition<Integer>(0, 'a', 1));
+
+        m.addTransition(new Transition<Integer>(1, 'b', 2));
+        m.addTransition(new Transition<Integer>(1, 'b', 3));
+        m.addTransition(new Transition<Integer>(1, 'a', 4));
+
+        m.addTransition(new Transition<Integer>(2, 'a', 0));
+
+        m.addTransition(new Transition<Integer>(3, 'a', 4));
+
+        m.addTransition(new Transition<Integer>(4, 'a', 2));
+
+        new GraphizGenerator<>(m);
+
+        assertTrue(m.accept("aaa"));
+    }
+
+    @Test
+    public void MachineNDFAMultipleEnds() {
+        Character[] a = { 'a', 'b' };
+
+        Machine<Integer> m = new Machine<Integer>(a);
+        m.addBeginState(0);
+        m.addEndState(0);
+        m.addEndState(2);
+
+        m.addTransition(new Transition<Integer>(0, 'a', 1));
+
+        m.addTransition(new Transition<Integer>(1, 'b', 2));
+        m.addTransition(new Transition<Integer>(1, 'b', 3));
+        m.addTransition(new Transition<Integer>(1, 'a', 4));
+
+        m.addTransition(new Transition<Integer>(2, 'a', 0));
+
+        m.addTransition(new Transition<Integer>(3, 'a', 4));
+
+        m.addTransition(new Transition<Integer>(4, 'a', 2));
+
+        new GraphizGenerator<>(m);
+
+        assertTrue(m.accept("abaa"));
+    }
+
+    @Test
+    public void MachineEpsilonTransition(){
+        Character[] a = { 'a', 'b' };
+
+        Machine<Integer> m = new Machine<Integer>(a);
+        m.addBeginState(0);
+        m.addEndState(2);
+
+        m.addTransition(new Transition<Integer>(0, null, 1));
+        m.addTransition(new Transition<Integer>(1, null, 2));
+
+        m.draw();
+
+        assertTrue(m.accept(""));
     }
 
     @Test
@@ -52,6 +148,8 @@ public class MachineTest {
         Character[] a = { 'a', 'b' };
 
         Machine<Integer> m = MachineCreator.startsWith("ab", a);
+
+        m.draw();
 
         assertTrue(m.getLanguageForLength(3).size() == 3);
     }
@@ -66,10 +164,7 @@ public class MachineTest {
 
         System.out.println(m.getLanguageForLength(5));
 
-        GraphizGenerator<Integer> g = new GraphizGenerator<>();
-        g.GenerateGraphizContent(m);
-
-        // assertTrue(m.getLanguageForLength(3).size() == 3);
+        assertTrue(m.getLanguageForLength(5).size() == 3);
     }
 
     @Test
@@ -78,20 +173,8 @@ public class MachineTest {
 
         Machine<Integer> m = MachineCreator.contains("bab", a);
 
-        System.out.println(m.transitions);
-
-        System.out.println(m.getLanguageForLength(4));
+        m.draw();
 
         assertTrue(m.getLanguageForLength(4).size() == 4);
-    }
-
-    @Test
-    public void MachineCreatorFindPattern() {
-        String test = "babbab";
-
-        System.out.println(MachineCreator.findPatterns(test));
-
-        // assertTrue();
-
     }
 }

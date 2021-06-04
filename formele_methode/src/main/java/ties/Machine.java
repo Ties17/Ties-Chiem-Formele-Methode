@@ -6,13 +6,13 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class Machine<T extends Comparable<T>> {
-    
+
     ArrayList<Character> alphabet;
     ArrayList<Transition<T>> transitions = new ArrayList<>();
     SortedSet<T> beginStates = new TreeSet<>();
     SortedSet<T> endStates = new TreeSet<>();
-    
-    public Machine(Character[] alphabet){
+
+    public Machine(Character[] alphabet) {
         ArrayList<Character> al = new ArrayList<>();
         for (Character character : alphabet) {
             al.add(character);
@@ -20,58 +20,82 @@ public class Machine<T extends Comparable<T>> {
         this.alphabet = al;
     }
 
-    public void addBeginState(T state){
+    public void addBeginState(T state) {
         beginStates.add(state);
     }
 
-    public void addEndState(T state){
+    public void addEndState(T state) {
         endStates.add(state);
     }
 
-    public void addTransition(Transition<T> trans){
+    public void addTransition(Transition<T> trans) {
         transitions.add(trans);
         Collections.sort(transitions);
         // System.out.println(transitions);
     }
 
-    public void addTransition(ArrayList<Transition<T>> transits){
+    public void addTransition(ArrayList<Transition<T>> transits) {
         transitions.addAll(transits);
         Collections.sort(transitions);
     }
 
-    public boolean accept(String word){
-        for(int i = 0; i < word.length(); i ++){
+    public boolean accept(String word) {
+        for (int i = 0; i < word.length(); i++) {
             char s = word.charAt(i);
-            
-            if(!alphabet.contains(s)){
+
+            if (!alphabet.contains(s)) {
                 return false;
             }
         }
 
-        for(T state : beginStates){
-            for (int i = 0; i < word.length(); i++) {
-                Character s = word.charAt(i);
+        ArrayList<T> endStates = new ArrayList<>();
+        for (T startState : this.beginStates) {
+            endStates.addAll(acceptNDFArecursive(word, startState));
+        }
 
-                ArrayList<Transition<T>> transits = findTransitionWithStartState(state);
-                // CASE DFA
-                for (Transition<T> trans : transits) {
-                    if (trans.acceptor == s) {
-                        state = trans.toState;
-                    }
-                }
-            }
-
-            for(T endState : endStates){
-                if(state == endState){
-                    return true;
-                }
+        for (T endState : endStates) {
+            // System.out.println(endState);
+            if (this.endStates.contains(endState)) {
+                return true;
             }
         }
 
         return false;
     }
 
-    public ArrayList<String> getLanguageForLength(int length){
+    private ArrayList<T> acceptNDFArecursive(String word, T startState) {
+        // System.out.println("NDFA recursive for word: " + word + " & startState: " +
+        // startState);
+        ArrayList<T> endStates = new ArrayList<>();
+
+        if (word.isEmpty()) {
+            // System.out.println("Word is empty");
+            endStates.addAll(epsilonClosure(startState));
+        } else {
+            Character s = word.charAt(0);
+
+            ArrayList<Transition<T>> transits = findTransitionWithStartState(startState);
+            boolean transFound = false;
+
+            for (Transition<T> trans : transits) {
+                if (trans.accept(s)) {
+                    transFound = true;
+                    // System.out.println(trans);
+                    endStates.addAll(acceptNDFArecursive(word.substring(1), trans.toState));
+                }
+            }
+
+            if (!transFound) {
+                // System.out.println("No transition found");
+                endStates.addAll(acceptNDFArecursive(word.substring(1), startState));
+            }
+
+        }
+
+        return endStates;
+    }
+
+    public ArrayList<String> getLanguageForLength(int length) {
         ArrayList<String> possibleWords = new ArrayList<String>();
 
         for (int index = 0; index < alphabet.size(); index++) {
@@ -80,10 +104,10 @@ public class Machine<T extends Comparable<T>> {
             possibleWords.add(word);
         }
 
-        for(int amount = 2; amount <= length ; amount++){
+        for (int amount = 2; amount <= length; amount++) {
             ArrayList<String> temp = new ArrayList<>();
-            for(String word : possibleWords){
-                if(word.length() == amount-1){
+            for (String word : possibleWords) {
+                if (word.length() == amount - 1) {
                     for (int index = 0; index < alphabet.size(); index++) {
                         String newWord = word;
                         newWord += alphabet.get(index);
@@ -95,8 +119,8 @@ public class Machine<T extends Comparable<T>> {
         }
 
         ArrayList<String> words = new ArrayList<>();
-        for(String word : possibleWords){
-            if(accept(word) == true){
+        for (String word : possibleWords) {
+            if (accept(word) == true) {
                 words.add(word);
             }
         }
@@ -104,13 +128,48 @@ public class Machine<T extends Comparable<T>> {
         return words;
     }
 
-    private ArrayList<Transition<T>> findTransitionWithStartState(T startState){
+    private ArrayList<Transition<T>> findTransitionWithStartState(T startState) {
         ArrayList<Transition<T>> transits = new ArrayList<>();
-        for(Transition<T> trans : transitions){
-            if(trans.fromState.equals(startState)){
+        for (Transition<T> trans : transitions) {
+            if (trans.fromState.equals(startState)) {
                 transits.add(trans);
             }
         }
         return transits;
+    }
+
+    private ArrayList<Transition<T>> findEpsilonTransitionWithStartState(T startState) {
+        ArrayList<Transition<T>> transits = new ArrayList<>();
+        for (Transition<T> trans : transitions) {
+            if (trans.fromState.equals(startState) && trans.type == Type.EPSILON) {
+                transits.add(trans);
+            }
+        }
+        return transits;
+    }
+
+    private ArrayList<T> epsilonClosure(T state) {
+        // WIP mogelijk bugs aanwezig nog niet volledig door getest
+        ArrayList<T> tempClosure = new ArrayList<>();
+
+        ArrayList<Transition<T>> transitions = findEpsilonTransitionWithStartState(state);
+
+        for (Transition<T> trans : transitions) {
+            tempClosure.add(trans.toState);
+        }
+
+        ArrayList<T> closure = new ArrayList<>();
+
+        for (T s1 : tempClosure) {
+            closure.addAll(epsilonClosure(s1));
+        }
+
+        closure.addAll(tempClosure);
+
+        return closure;
+    }
+
+    public void draw() {
+        new GraphizGenerator<>(this);
     }
 }
