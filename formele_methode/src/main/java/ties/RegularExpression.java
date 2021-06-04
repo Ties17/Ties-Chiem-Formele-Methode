@@ -24,7 +24,7 @@ public class RegularExpression {
             char c = this.expression.charAt(i);
             if (!operators.contains(c)) {
                 language.add(c);
-            }
+            } 
         }
     }
 

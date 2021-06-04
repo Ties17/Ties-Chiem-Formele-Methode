@@ -27,5 +27,9 @@ class App {
     public static void testRegExp() {
         RegularExpression re = new RegularExpression("a|b");
         System.out.println(re.accept("a"));
+
+
+        // a | b
+        // RegExOr(RegExOne("a"), RegExOne("b"));
     }
 }
