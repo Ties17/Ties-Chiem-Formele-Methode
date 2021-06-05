@@ -74,4 +74,18 @@ public class RegexTest {
 
         Assert.assertEquals(all.getLanguage(3), languageResult);
     }
+
+    @Test
+    public void testThompsonConversion(){
+        //(a | bc) *
+        RegExpresion expr1 = new RegExpresion("a");
+        RegExpresion expr2 = new RegExpresion("bc");
+        RegExpresion all;
+
+        all = (expr1.or(expr2)).star();
+        
+        Machine<Integer> m = all.thompsonConvert();
+
+        m.draw();
+    }
 }

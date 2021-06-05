@@ -5,10 +5,14 @@ import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.annotation.RegEx;
+
+import ties.RegExpression.RegExpresion;
+
 public class Machine<T extends Comparable<T>> {
 
     ArrayList<Character> alphabet;
-    ArrayList<Transition<T>> transitions = new ArrayList<>();
+    public ArrayList<Transition<T>> transitions = new ArrayList<>();
     SortedSet<T> beginStates = new TreeSet<>();
     SortedSet<T> endStates = new TreeSet<>();
 
@@ -71,6 +75,7 @@ public class Machine<T extends Comparable<T>> {
         if (word.isEmpty()) {
             // System.out.println("Word is empty");
             endStates.addAll(epsilonClosure(startState));
+            endStates.add(startState);
         } else {
             Character s = word.charAt(0);
 
@@ -138,6 +143,16 @@ public class Machine<T extends Comparable<T>> {
         return transits;
     }
 
+    private ArrayList<Transition<T>> findTransition(T startState, char acceptor) {
+        ArrayList<Transition<T>> transits = new ArrayList<>();
+        for (Transition<T> trans : transitions) {
+            if (trans.fromState.equals(startState) && trans.acceptor == acceptor) {
+                transits.add(trans);
+            }
+        }
+        return transits;
+    }
+
     private ArrayList<Transition<T>> findEpsilonTransitionWithStartState(T startState) {
         ArrayList<Transition<T>> transits = new ArrayList<>();
         for (Transition<T> trans : transitions) {
@@ -172,4 +187,28 @@ public class Machine<T extends Comparable<T>> {
     public void draw() {
         new GraphizGenerator<>(this);
     }
+
+    public SortedSet<T> getStates() {
+        SortedSet<T> states = new TreeSet<>();
+        for (Transition<T> t : transitions) {
+            states.add(t.fromState);
+            states.add(t.toState);
+        }
+        return states;
+    }
+
+    public boolean isDFA() {
+        boolean isDFA = true;
+
+        for (T state : getStates()) {
+            for (char c : alphabet) {
+                if (findTransition(state, c).size() != 1) {
+                    isDFA = false;
+                }
+            }
+        }
+
+        return isDFA;
+    }
+
 }

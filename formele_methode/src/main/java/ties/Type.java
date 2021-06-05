@@ -1,5 +1,5 @@
 package ties;
 
 public enum Type {
-    CHARACTER, EPSILON
+    CHARACTER, EPSILON, REGEXPRESSION
 }

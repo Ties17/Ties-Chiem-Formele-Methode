@@ -1,11 +1,14 @@
 package ties;
 
+import ties.RegExpression.RegExpresion;
+
 public class Transition<T extends Comparable<T>> implements Comparable<Transition<T>> {
 
     public T fromState;
     public char acceptor;
     public T toState;
     public Type type;
+    public RegExpresion regEx;
 
     public Transition(T fromState, char s, T toState){
         this.fromState = fromState;
@@ -22,7 +25,13 @@ public class Transition<T extends Comparable<T>> implements Comparable<Transitio
         } else {
             this.type = Type.EPSILON;
         }
-        
+    }
+
+    public Transition(T fromState, RegExpresion r, T toState){
+        this.fromState = fromState;
+        this.toState = toState;
+        this.type = Type.REGEXPRESSION;
+        this.regEx = r;
     }
 
     public char getAcceptorChar(){

@@ -20,7 +20,7 @@ public class MachineTest {
         m.addTransition(new Transition<Integer>(1, 'a', 1));
         m.addTransition(new Transition<Integer>(1, 'b', 0));
 
-        new GraphizGenerator<>(m);
+        m.draw();
         assertTrue(m.accept("bab"));
     }
 
@@ -135,8 +135,8 @@ public class MachineTest {
         m.addBeginState(0);
         m.addEndState(2);
 
-        m.addTransition(new Transition<Integer>(0, null, 1));
-        m.addTransition(new Transition<Integer>(1, null, 2));
+        m.addTransition(new Transition<Integer>(0, Type.EPSILON, 1));
+        m.addTransition(new Transition<Integer>(1, Type.EPSILON, 2));
 
         m.draw();
 
@@ -164,6 +164,8 @@ public class MachineTest {
 
         System.out.println(m.getLanguageForLength(5));
 
+        m.draw();
+
         assertTrue(m.getLanguageForLength(5).size() == 3);
     }
 
@@ -176,5 +178,43 @@ public class MachineTest {
         m.draw();
 
         assertTrue(m.getLanguageForLength(4).size() == 4);
+    }
+
+    @Test
+    public void MachineDFAisDFA() {
+        Character[] a = { 'a', 'b' };
+
+        Machine<Integer> m = new Machine<Integer>(a);
+        m.addBeginState(0);
+        m.addEndState(0);
+
+        m.addTransition(new Transition<Integer>(0, 'a', 0));
+        m.addTransition(new Transition<Integer>(0, 'b', 1));
+
+        m.addTransition(new Transition<Integer>(1, 'a', 1));
+        m.addTransition(new Transition<Integer>(1, 'b', 0));
+
+        m.draw();
+
+        assertTrue(m.isDFA() == true);
+    }
+
+    @Test
+    public void MachineNDFAisDFA() {
+        Character[] a = { 'a', 'b' };
+
+        Machine<Integer> m = new Machine<Integer>(a);
+        m.addBeginState(0);
+        m.addEndState(0);
+
+        m.addTransition(new Transition<Integer>(0, 'a', 0));
+        m.addTransition(new Transition<Integer>(0, 'b', 1));
+
+        m.addTransition(new Transition<Integer>(1, 'a', 1));
+
+        m.draw();
+        
+
+        assertTrue(m.isDFA() == false);
     }
 }
