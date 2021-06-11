@@ -118,6 +118,10 @@ public class RegExpresion {
         return languageResult;
     }
 
+    public boolean isEqualTo(RegExpresion re){
+        return this.getLanguage(15).equals(re.getLanguage(15));
+    }
+
     public Machine<Integer> thompsonConvert() {
         Character[] a = createAlphabetForTerminals(findTerminals(this));
 

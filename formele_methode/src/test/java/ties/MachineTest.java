@@ -123,10 +123,35 @@ public class MachineTest {
         m.addTransition(new Transition<Integer>(3, 'a', 4));
 
         m.addTransition(new Transition<Integer>(4, 'a', 2));
-
-        new GraphizGenerator<>(m);
-
+        m.draw();
+    
         assertTrue(m.accept("abaa"));
+    }
+
+    @Test
+    public void MachineReverse(){
+        Character[] a = { 'a', 'b' };
+
+        Machine<Integer> m = new Machine<Integer>(a);
+        m.addBeginState(0);
+        m.addEndState(0);
+        m.addEndState(2);
+
+        m.addTransition(new Transition<Integer>(0, 'a', 1));
+
+        m.addTransition(new Transition<Integer>(1, 'b', 2));
+        m.addTransition(new Transition<Integer>(1, 'b', 3));
+        m.addTransition(new Transition<Integer>(1, 'a', 4));
+
+        m.addTransition(new Transition<Integer>(2, 'a', 0));
+
+        m.addTransition(new Transition<Integer>(3, 'a', 4));
+
+        m.addTransition(new Transition<Integer>(4, 'a', 2));
+        m.draw();
+
+        Machine<Integer> reverse = m.reverse();
+        reverse.drawName("diagram2");
     }
 
     @Test
@@ -262,11 +287,11 @@ public class MachineTest {
 
         NDFA.addTransition(new Transition<Integer>(5, 'a', 4));
 
-        NDFA.draw();
+        NDFA.drawName("diagram");
 
         System.out.println("Epsilon closure for 2: " + NDFA.epsilonClosure(2));
 
         Machine<String> DFA = NDFA.toDFA();
-        DFA.draw();
+        DFA.drawName("diagram2");
     }
 }

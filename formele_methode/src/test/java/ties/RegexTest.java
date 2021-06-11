@@ -88,4 +88,17 @@ public class RegexTest {
 
         m.draw();
     }
+
+    @Test
+    public void testEquals(){
+        RegExpresion expr1 = new RegExpresion("a");
+        RegExpresion expr2 = new RegExpresion("b");
+        RegExpresion all;
+        RegExpresion all2;
+
+        all = (expr1.or(expr2)).star();
+        all2 = (expr1.or(expr2)).star();
+
+        System.out.println(all.isEqualTo(all2));
+    }
 }

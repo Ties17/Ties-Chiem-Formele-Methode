@@ -232,7 +232,13 @@ public class Machine<T extends Comparable<T>> {
     }
 
     public void draw() {
-        new GraphizGenerator<>(this);
+        GraphizGenerator<T> g = new GraphizGenerator<>(this);
+        g.GenerateImage("diagram");
+    }
+
+    public void drawName(String fileName) {
+        GraphizGenerator<T> g = new GraphizGenerator<>(this);
+        g.GenerateImage(fileName);
     }
 
     public SortedSet<T> getStates() {
@@ -298,6 +304,22 @@ public class Machine<T extends Comparable<T>> {
         } else {
             return null;
         }
+    }
+
+    public Machine<T> reverse(){
+       Machine<T> m = new Machine<>(alphabet);
+       
+       for(T state : beginStates){
+           m.addEndState(state);
+       }
+       for(T state : endStates){
+           m.addBeginState(state);
+       }
+       for(Transition<T> trans : transitions){
+           m.addTransition(new Transition<T>(trans.toState, trans.acceptor, trans.fromState));
+       }
+
+       return m;
     }
 
 }

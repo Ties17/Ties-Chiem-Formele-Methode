@@ -23,13 +23,15 @@ import guru.nidi.graphviz.model.Node;
 
 public class GraphizGenerator<T extends Comparable<T>> {
 
+    private Machine<T> m;
+
     GraphizGenerator(Machine<T> m){
-        GenerateGraphizContent(m);
+        this.m = m;
     }
 
-    public void GenerateGraphizContent(Machine<T> machine) {
+    public Graph GenerateGraphizContent() {
 
-        ArrayList<Node> nodes = createNodes(machine);
+        ArrayList<Node> nodes = createNodes(this.m);
 
         Graph g = graph("example1").directed()
         .graphAttr().with(Rank.dir(RankDir.LEFT_TO_RIGHT))
@@ -39,10 +41,14 @@ public class GraphizGenerator<T extends Comparable<T>> {
             nodes
         );
 
+        return g;
+    }
+
+    public void GenerateImage(String imageName){
         try {
-            Graphviz.fromGraph(g).height(500).render(Format.PNG).toFile(new File("example/diagram.png"));
-        }
-        catch(IOException ex) {
+            Graphviz.fromGraph(GenerateGraphizContent())
+            .height(500).render(Format.PNG).toFile(new File("example/" + imageName + ".png"));
+        } catch (IOException ex) {
         }
     }
 
@@ -54,7 +60,9 @@ public class GraphizGenerator<T extends Comparable<T>> {
         for(Transition<T> trans : machine.transitions) {
             //nothing -> q0
 
-            Node node = node(trans.fromState + "").link(to(node(trans.toState + "")).with((Label.of(trans.getAcceptorChar() + "")))); //.with(Shape.DOUBLE_CIRCLE);
+            Node node = node(trans.fromState + "").with(Shape.CIRCLE)
+            .link(to(node(trans.toState + ""))
+            .with((Label.of(trans.getAcceptorChar() + "")))); //.with(Shape.DOUBLE_CIRCLE);
 
             for(Object o : machine.beginStates){
                 if(o.toString().equals(node.name().toString())){
