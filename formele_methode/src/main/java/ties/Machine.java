@@ -1,7 +1,10 @@
 package ties;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -22,6 +25,10 @@ public class Machine<T extends Comparable<T>> {
             al.add(character);
         }
         this.alphabet = al;
+    }
+
+    public Machine(ArrayList<Character> alphabet) {
+        this.alphabet = alphabet;
     }
 
     public void addBeginState(T state) {
@@ -153,6 +160,45 @@ public class Machine<T extends Comparable<T>> {
         return transits;
     }
 
+    public ArrayList<T> findEndStates(T startState, char acceptor) {
+        HashSet<T> states = new HashSet<>();
+
+        for (T state : epsilonClosure(startState)) {
+            for (Transition<T> t : findTransition(state, acceptor)) {
+                states.add(t.toState);
+                states.addAll(epsilonClosure(t.toState));
+            }
+        }
+
+        ArrayList<T> s = new ArrayList<>();
+        Iterator<T> t = states.iterator();
+        while (t.hasNext()) {
+            s.add(t.next());
+        }
+
+        Collections.sort(s);
+        //System.out.println("Found endStates for startState: " + startState + " & acceptor: " + acceptor + " = " + s);
+        return s;
+    }
+
+    public ArrayList<T> findEndStates(ArrayList<T> stateList, char acceptor) {
+        HashSet<T> states = new HashSet<>();
+
+        for(T startState : stateList){
+            states.addAll(findEndStates(startState, acceptor));
+        }
+
+        ArrayList<T> s = new ArrayList<>();
+        Iterator<T> t = states.iterator();
+        while (t.hasNext()) {
+            s.add(t.next());
+        }
+
+        Collections.sort(s);
+        //System.out.println("Found endStates for stateList: " + stateList + " & acceptor: " + acceptor + " = " + s);
+        return s;
+    }
+
     private ArrayList<Transition<T>> findEpsilonTransitionWithStartState(T startState) {
         ArrayList<Transition<T>> transits = new ArrayList<>();
         for (Transition<T> trans : transitions) {
@@ -163,7 +209,7 @@ public class Machine<T extends Comparable<T>> {
         return transits;
     }
 
-    private ArrayList<T> epsilonClosure(T state) {
+    public TreeSet<T> epsilonClosure(T state) {
         // WIP mogelijk bugs aanwezig nog niet volledig door getest
         ArrayList<T> tempClosure = new ArrayList<>();
 
@@ -173,13 +219,14 @@ public class Machine<T extends Comparable<T>> {
             tempClosure.add(trans.toState);
         }
 
-        ArrayList<T> closure = new ArrayList<>();
+        TreeSet<T> closure = new TreeSet<>();
 
         for (T s1 : tempClosure) {
             closure.addAll(epsilonClosure(s1));
         }
 
         closure.addAll(tempClosure);
+        closure.add(state);
 
         return closure;
     }
@@ -209,6 +256,48 @@ public class Machine<T extends Comparable<T>> {
         }
 
         return isDFA;
+    }
+
+    public Machine<String> toDFA() {
+        if (!this.isDFA()) {
+
+            HashSet<ArrayList<T>> newStates = new HashSet<>();
+            ArrayList<ArrayList<T>> startStates = new ArrayList<>();
+            for(T start : beginStates){
+                ArrayList<T> arr = new ArrayList<>();
+                arr.add(start);
+                newStates.add(arr);
+                startStates.add(arr);
+            }
+            for (T state : getStates()) {
+                for (char c : alphabet) {
+                    newStates.add(findEndStates(state, c));
+                }
+            }
+            System.out.println(newStates);
+
+            Machine<String> m = new Machine<String>(alphabet);
+
+            for(ArrayList<T> state : newStates){
+                for (char c : alphabet) {
+                    Transition<String> t = new Transition<String>(state.toString(), c, findEndStates(state, c).toString());
+                    //System.out.println(t);
+                    m.addTransition(t);
+                }
+                for(T end : endStates){
+                    if(state.contains(end)){
+                        m.addEndState(state.toString());
+                    }
+                }
+            }
+
+            for(ArrayList<T> s : startStates){
+                m.addBeginState(s.toString());
+            }
+            return m;
+        } else {
+            return null;
+        }
     }
 
 }
