@@ -3,10 +3,13 @@ package ties;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 
 import javax.annotation.RegEx;
 
@@ -50,6 +53,11 @@ public class Machine<T extends Comparable<T>> {
         Collections.sort(transitions);
     }
 
+    public void removeTransition(Transition<T> trans) {
+        transitions.remove(trans);
+        Collections.sort(transitions);
+    }
+
     public boolean accept(String word) {
         for (int i = 0; i < word.length(); i++) {
             char s = word.charAt(i);
@@ -86,7 +94,7 @@ public class Machine<T extends Comparable<T>> {
         } else {
             Character s = word.charAt(0);
 
-            ArrayList<Transition<T>> transits = findTransitionWithStartState(startState);
+            ArrayList<Transition<T>> transits = findTransition(startState);
             boolean transFound = false;
 
             for (Transition<T> trans : transits) {
@@ -140,10 +148,20 @@ public class Machine<T extends Comparable<T>> {
         return words;
     }
 
-    private ArrayList<Transition<T>> findTransitionWithStartState(T startState) {
+    private ArrayList<Transition<T>> findTransition(T startState) {
         ArrayList<Transition<T>> transits = new ArrayList<>();
         for (Transition<T> trans : transitions) {
             if (trans.fromState.equals(startState)) {
+                transits.add(trans);
+            }
+        }
+        return transits;
+    }
+
+    private ArrayList<Transition<T>> findTransitionToState(T toState) {
+        ArrayList<Transition<T>> transits = new ArrayList<>();
+        for (Transition<T> trans : transitions) {
+            if (trans.toState.equals(toState)) {
                 transits.add(trans);
             }
         }
@@ -177,14 +195,15 @@ public class Machine<T extends Comparable<T>> {
         }
 
         Collections.sort(s);
-        //System.out.println("Found endStates for startState: " + startState + " & acceptor: " + acceptor + " = " + s);
+        // System.out.println("Found endStates for startState: " + startState + " &
+        // acceptor: " + acceptor + " = " + s);
         return s;
     }
 
     public ArrayList<T> findEndStates(ArrayList<T> stateList, char acceptor) {
         HashSet<T> states = new HashSet<>();
 
-        for(T startState : stateList){
+        for (T startState : stateList) {
             states.addAll(findEndStates(startState, acceptor));
         }
 
@@ -195,7 +214,8 @@ public class Machine<T extends Comparable<T>> {
         }
 
         Collections.sort(s);
-        //System.out.println("Found endStates for stateList: " + stateList + " & acceptor: " + acceptor + " = " + s);
+        // System.out.println("Found endStates for stateList: " + stateList + " &
+        // acceptor: " + acceptor + " = " + s);
         return s;
     }
 
@@ -269,7 +289,7 @@ public class Machine<T extends Comparable<T>> {
 
             HashSet<ArrayList<T>> newStates = new HashSet<>();
             ArrayList<ArrayList<T>> startStates = new ArrayList<>();
-            for(T start : beginStates){
+            for (T start : beginStates) {
                 ArrayList<T> arr = new ArrayList<>();
                 arr.add(start);
                 newStates.add(arr);
@@ -283,7 +303,7 @@ public class Machine<T extends Comparable<T>> {
             System.out.println(newStates);
 
             HashSet<ArrayList<T>> lastStates = new HashSet<>();
-            while(lastStates.size() != newStates.size()){
+            while (lastStates.size() != newStates.size()) {
                 lastStates = (HashSet<ArrayList<T>>) newStates.clone();
                 for (ArrayList<T> state : lastStates) {
                     for (char c : alphabet) {
@@ -291,23 +311,25 @@ public class Machine<T extends Comparable<T>> {
                     }
                 }
             }
-            
+
+            System.out.println(newStates);
             Machine<String> m = new Machine<String>(alphabet);
 
-            for(ArrayList<T> state : newStates){
+            for (ArrayList<T> state : newStates) {
                 for (char c : alphabet) {
-                    Transition<String> t = new Transition<String>(state.toString(), c, findEndStates(state, c).toString());
-                    //System.out.println(t);
+                    Transition<String> t = new Transition<String>(state.toString(), c,
+                            findEndStates(state, c).toString());
+                    // System.out.println(t);
                     m.addTransition(t);
                 }
-                for(T end : endStates){
-                    if(state.contains(end)){
+                for (T end : endStates) {
+                    if (state.contains(end)) {
                         m.addEndState(state.toString());
                     }
                 }
             }
 
-            for(ArrayList<T> s : startStates){
+            for (ArrayList<T> s : startStates) {
                 m.addBeginState(s.toString());
             }
             return m;
@@ -316,20 +338,163 @@ public class Machine<T extends Comparable<T>> {
         }
     }
 
-    public Machine<T> reverse(){
-       Machine<T> m = new Machine<>(alphabet);
-       
-       for(T state : beginStates){
-           m.addEndState(state);
-       }
-       for(T state : endStates){
-           m.addBeginState(state);
-       }
-       for(Transition<T> trans : transitions){
-           m.addTransition(new Transition<T>(trans.toState, trans.acceptor, trans.fromState));
-       }
+    public Machine<T> reverse() {
+        Machine<T> m = new Machine<>(alphabet);
 
-       return m;
+        for (T state : beginStates) {
+            m.addEndState(state);
+        }
+        for (T state : endStates) {
+            m.addBeginState(state);
+        }
+        for (Transition<T> trans : transitions) {
+            m.addTransition(new Transition<T>(trans.toState, trans.acceptor, trans.fromState));
+        }
+
+        return m;
+    }
+
+    public Machine<Integer> renameStates() {
+        takenTokens.clear();
+        HashMap<T, Integer> translationTable = new HashMap<>();
+        for (T state : getStates()) {
+            translationTable.put(state, getNextToken());
+        }
+
+        Machine<Integer> m = new Machine<>(alphabet);
+        for (Transition<T> trans : transitions) {
+            m.addTransition(new Transition<Integer>(translationTable.get(trans.fromState), trans.acceptor,
+                    translationTable.get(trans.toState)));
+        }
+        for(T state : beginStates){
+            m.addBeginState(translationTable.get(state));
+        }
+        for (T state : endStates) {
+            m.addEndState(translationTable.get(state));
+        }
+        return m;
+    }
+
+    public Machine<Character> minimize() {
+        HashMap<Character, SortedSet<T>> states = new HashMap<>();
+        SortedSet<T> statesWithoutEndstates = getStates();
+        statesWithoutEndstates.removeAll(endStates);
+        states.put((char) getNextToken(), statesWithoutEndstates);
+        states.put((char) getNextToken(), endStates);
+
+        HashMap<Character, SortedSet<T>> lastStates = null;
+        while (!states.equals(lastStates) || lastStates == null) {
+            lastStates = states;
+            states = splitUp(states);
+        }
+
+        System.out.println(states);
+
+        Machine<Character> m = new Machine<>(alphabet);
+
+        for (Entry<Character, SortedSet<T>> e : states.entrySet()) {
+            for (char c : alphabet) {
+                Transition<T> trans = findTransition(e.getValue().first(), c).get(0);
+                m.addTransition(new Transition<Character>(e.getKey(), trans.acceptor, findKey(states, trans.toState)));
+            }
+        }
+        for (T state : beginStates) {
+            m.addBeginState(findKey(states, state));
+        }
+        for (T state : endStates) {
+            m.addEndState(findKey(states, state));
+        }
+
+        return m;
+    }
+
+    public HashMap<Character, SortedSet<T>> splitUp(HashMap<Character, SortedSet<T>> states) {
+        // System.out.println("Splitting: " + states);
+        HashMap<String, SortedSet<T>> tempStates = new HashMap<>();
+
+        for (Entry<Character, SortedSet<T>> e : states.entrySet()) {
+            for (T state : e.getValue()) {
+                String tempKey = "";
+                if (endStates.contains(state)) {
+                    tempKey += "*";
+                }
+                for (char c : alphabet) {
+                    T toState = findTransition(state, c).get(0).toState;
+                    tempKey += findKey(states, toState);
+                }
+
+                SortedSet<T> set = tempStates.get(tempKey);
+                if (set == null) {
+                    SortedSet<T> tempSet = new TreeSet<>();
+                    tempSet.add(state);
+                    tempStates.put(tempKey, tempSet);
+                } else {
+                    set.add(state);
+                    tempStates.put(tempKey, set);
+                }
+            }
+        }
+        // System.out.println("Temp: " + tempStates);
+
+        boolean check = false;
+        for (Entry<String, SortedSet<T>> e1 : tempStates.entrySet()) {
+            check = false;
+            for (Entry<Character, SortedSet<T>> e2 : states.entrySet()) {
+                if (e1.getValue().equals(e2.getValue())) {
+                    check = true;
+                }
+            }
+            if (check == false) {
+                break;
+            }
+        }
+        if (check) {
+            return states;
+        }
+
+        HashMap<Character, SortedSet<T>> newStates = new HashMap<>();
+        for (Entry<String, SortedSet<T>> e : tempStates.entrySet()) {
+            newStates.put((char) getNextToken(), e.getValue());
+        }
+
+        // System.out.println(newStates);
+
+        return newStates;
+    }
+
+    public Character findKey(HashMap<Character, SortedSet<T>> states, T toState) {
+        for (Entry<Character, SortedSet<T>> e : states.entrySet()) {
+            for (T state : e.getValue()) {
+                if (state == toState) {
+                    return e.getKey();
+                }
+            }
+        }
+        return null;
+    }
+
+    private ArrayList<Integer> takenTokens = new ArrayList<>();
+
+    public int getNextToken() {
+        int newToken;
+        if (takenTokens.isEmpty()) {
+            newToken = 65;
+        } else {
+            newToken = Collections.max(takenTokens) + 1;
+        }
+
+        takenTokens.add(newToken);
+        return newToken;
+    }
+
+    private boolean containsDuplicate(ArrayList<ArrayList<T>> list, ArrayList<T> states) {
+        for (ArrayList<T> l : list) {
+            if (l.containsAll(states) && l.size() == states.size()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

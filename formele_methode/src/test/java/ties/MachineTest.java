@@ -319,4 +319,69 @@ public class MachineTest {
         Machine<String> DFA = NDFA.toDFA();
         DFA.drawName("diagram2");
     }
+
+    @Test
+    public void DFAminimize1() {
+        Character[] a = { 'a', 'b' };
+        Machine<Integer> DFA = new Machine<Integer>(a);
+
+        DFA.addBeginState(0);
+        DFA.addEndState(2);
+        DFA.addEndState(4);
+
+        DFA.addTransition(new Transition<Integer>(0, 'a', 0));
+        DFA.addTransition(new Transition<Integer>(0, 'b', 1));
+
+        DFA.addTransition(new Transition<Integer>(1, 'a', 2));
+        DFA.addTransition(new Transition<Integer>(1, 'b', 1));
+
+        DFA.addTransition(new Transition<Integer>(2, 'a', 0));
+        DFA.addTransition(new Transition<Integer>(2, 'b', 3));
+
+        DFA.addTransition(new Transition<Integer>(3, 'a', 4));
+        DFA.addTransition(new Transition<Integer>(3, 'b', 1));
+
+        DFA.addTransition(new Transition<Integer>(4, 'a', 5));
+        DFA.addTransition(new Transition<Integer>(4, 'b', 3));
+
+        DFA.addTransition(new Transition<Integer>(5, 'a', 0));
+        DFA.addTransition(new Transition<Integer>(5, 'b', 3));
+
+        DFA.draw();
+        Machine<Character> mini = DFA.minimize();
+        mini.drawName("diagram2");
+    }
+
+    @Test
+    public void DFAminimize2() {
+        Character[] a = { 'a', 'b' };
+        Machine<Integer> NDFA = new Machine<Integer>(a);
+
+        NDFA.addBeginState(1);
+        NDFA.addEndState(2);
+        NDFA.addEndState(3);
+
+        NDFA.addTransition(new Transition<Integer>(1, 'a', 2));
+        NDFA.addTransition(new Transition<Integer>(1, 'b', 2));
+        NDFA.addTransition(new Transition<Integer>(1, 'b', 3));
+
+        NDFA.addTransition(new Transition<Integer>(2, 'a', 3));
+        NDFA.addTransition(new Transition<Integer>(2, 'b', 4));
+        NDFA.addTransition(new Transition<Integer>(2, Type.EPSILON, 4));
+
+        NDFA.addTransition(new Transition<Integer>(3, 'a', 2));
+
+        NDFA.addTransition(new Transition<Integer>(4, 'a', 2));
+        NDFA.addTransition(new Transition<Integer>(4, 'a', 5));
+
+        NDFA.addTransition(new Transition<Integer>(5, 'b', 5));
+        NDFA.addTransition(new Transition<Integer>(5, Type.EPSILON, 3));
+
+        NDFA.draw();
+
+        Machine<String> DFA = NDFA.toDFA();
+        DFA.drawName("diagram2");
+        Machine<Character> mini = DFA.renameStates().minimize();
+        mini.drawName("diagram3");
+    }
 }
