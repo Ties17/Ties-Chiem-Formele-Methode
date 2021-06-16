@@ -282,6 +282,16 @@ public class Machine<T extends Comparable<T>> {
             }
             System.out.println(newStates);
 
+            HashSet<ArrayList<T>> lastStates = new HashSet<>();
+            while(lastStates.size() != newStates.size()){
+                lastStates = (HashSet<ArrayList<T>>) newStates.clone();
+                for (ArrayList<T> state : lastStates) {
+                    for (char c : alphabet) {
+                        newStates.add(findEndStates(state, c));
+                    }
+                }
+            }
+            
             Machine<String> m = new Machine<String>(alphabet);
 
             for(ArrayList<T> state : newStates){

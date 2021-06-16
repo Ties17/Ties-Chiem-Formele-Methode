@@ -77,12 +77,17 @@ public class RegexTest {
 
     @Test
     public void testThompsonConversion(){
-        //(a | bc) *
-        RegExpresion expr1 = new RegExpresion("a");
-        RegExpresion expr2 = new RegExpresion("bc");
-        RegExpresion all;
+        // az((a | z | aa) z)* (aaa|zz)+
+        RegExpresion a = new RegExpresion("a");
+        RegExpresion z = new RegExpresion("z");
 
-        all = (expr1.or(expr2)).star();
+        RegExpresion dot1 = a.dot(z);
+        RegExpresion or1 = (a.or(z)).or(a.dot(a));
+        RegExpresion star1 = or1.dot(z).star();
+        RegExpresion plus1 = (((a.dot(a)).dot(a)).or(z.dot(z))).plus();
+        RegExpresion all = (dot1.dot(star1)).dot(plus1);
+
+        
         
         Machine<Integer> m = all.thompsonConvert();
 

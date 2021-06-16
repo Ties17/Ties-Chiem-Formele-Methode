@@ -10,7 +10,7 @@ import ties.Transition;
 import ties.Type;
 import ties.RegExpression.Operators.Operator;
 
-public class RegExpresion {
+public class RegExpresion{
 
     public Operator operator;
     public String terminals;
@@ -119,7 +119,36 @@ public class RegExpresion {
     }
 
     public boolean isEqualTo(RegExpresion re){
-        return this.getLanguage(15).equals(re.getLanguage(15));
+        boolean ismatch = true;
+        // Console.WriteLine("Matching: " + this + " & " + reg);
+
+        if (this.operator == Operator.ONE && re.operator == Operator.ONE) {
+            return this.terminals == re.terminals;
+
+        }
+
+        if (this.operator != re.operator) {
+            return false;
+        }
+
+        if (this.left != null && re.left != null && this.left.operator == re.left.operator) {
+            ismatch = this.left.isEqualTo(re.left);
+            if (!ismatch) {
+                return false;
+            }
+        } else if (!(this.left == null && re.left == null)) {
+            return false;
+        }
+
+        if (this.right != null && re.right != null && this.right.operator == re.right.operator) {
+            ismatch = this.right.isEqualTo(re.right);
+            if (!ismatch) {
+                return false;
+            }
+        } else if (!(this.right == null && re.right == null)) {
+            return false;
+        }
+        return ismatch;
     }
 
     public Machine<Integer> thompsonConvert() {

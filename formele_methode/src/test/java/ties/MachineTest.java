@@ -294,4 +294,29 @@ public class MachineTest {
         Machine<String> DFA = NDFA.toDFA();
         DFA.drawName("diagram2");
     }
+
+    @Test
+    public void toDFATest2() {
+        Character[] a = { 'a', 'b' };
+        Machine<Integer> NDFA = new Machine<Integer>(a);
+        NDFA.addBeginState(0);
+        NDFA.addEndState(0);
+
+        NDFA.addTransition(new Transition<Integer>(0, 'a', 1));
+        NDFA.addTransition(new Transition<Integer>(0, 'b', 1));
+        NDFA.addTransition(new Transition<Integer>(0, 'a', 0));
+
+        NDFA.addTransition(new Transition<Integer>(1, 'a', 2));
+        NDFA.addTransition(new Transition<Integer>(1, 'b', 2));
+
+        NDFA.addTransition(new Transition<Integer>(2, 'a', 0));
+        NDFA.addTransition(new Transition<Integer>(2, 'a', 2));
+        
+        NDFA.drawName("diagram");
+
+        //System.out.println("Epsilon closure for 2: " + NDFA.epsilonClosure(2));
+
+        Machine<String> DFA = NDFA.toDFA();
+        DFA.drawName("diagram2");
+    }
 }
