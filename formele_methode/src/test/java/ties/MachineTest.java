@@ -47,7 +47,7 @@ public class MachineTest {
         m.addTransition(new Transition<Integer>(3, 'a', 0));
         m.addTransition(new Transition<Integer>(3, 'b', 3));
 
-        new GraphizGenerator<>(m);
+        m.draw();
 
         assertTrue(m.accept("abb"));
     }

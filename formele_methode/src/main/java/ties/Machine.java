@@ -465,7 +465,7 @@ public class Machine<T extends Comparable<T>> {
     public Character findKey(HashMap<Character, SortedSet<T>> states, T toState) {
         for (Entry<Character, SortedSet<T>> e : states.entrySet()) {
             for (T state : e.getValue()) {
-                if (state == toState) {
+                if (state.equals(toState)) {
                     return e.getKey();
                 }
             }

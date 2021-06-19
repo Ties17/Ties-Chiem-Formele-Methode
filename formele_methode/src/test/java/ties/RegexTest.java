@@ -87,8 +87,6 @@ public class RegexTest {
         RegExpresion plus1 = (((a.dot(a)).dot(a)).or(z.dot(z))).plus();
         RegExpresion all = (dot1.dot(star1)).dot(plus1);
 
-        
-        
         Machine<Integer> m = all.thompsonConvert();
 
         m.draw();

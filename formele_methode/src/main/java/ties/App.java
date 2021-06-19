@@ -1,10 +1,11 @@
 package ties;
 
 import ties.RegExpression.RegExpresion;
+import ties.UI.MainScreen;
 
 class App {
     public static void main(String[] args) {
-        testRegExp();
+        new MainScreen();
     }
 
     public static void testMachine() {
@@ -13,7 +14,7 @@ class App {
         Machine<Integer> m = new Machine<Integer>(a);
         m.addBeginState(0);
         m.addEndState(2);
-        
+
         m.addTransition(new Transition<Integer>(0, 'a', 1));
         m.addTransition(new Transition<Integer>(0, 'b', -1));
 
@@ -24,14 +25,14 @@ class App {
         m.addTransition(new Transition<Integer>(2, 'a', -1));
 
         System.out.println(m.getLanguageForLength(5));
-        
+
     }
 
     public static void testRegExp() {
         RegExpresion expr1, expr2, expr3, expr4, expr5, a, b, all;
         a = new RegExpresion("a");
         b = new RegExpresion("b");
-        
+
         // expr1: "baa"
         expr1 = new RegExpresion("baa");
 
@@ -39,10 +40,10 @@ class App {
         expr2 = new RegExpresion("bb");
         // expr3: "baa | baa"
         expr3 = expr1.or(expr2);
-        
+
         // all: "(a|b)*"
         all = (a.or(b)).star();
-        
+
         // expr4: "(baa | baa)+"
         expr4 = expr3.plus();
         // expr5: "(baa | baa)+ (a|b)*"

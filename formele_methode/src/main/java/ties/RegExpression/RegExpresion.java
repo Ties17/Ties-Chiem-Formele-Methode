@@ -157,10 +157,13 @@ public class RegExpresion{
         Machine<Integer> m = new Machine<Integer>(a);
 
         m.addBeginState(0);
+        m.addEndState(1);
 
         m.addTransition(new Transition<Integer>(0, this, 1));
 
         doThompson(m);
+
+        
 
         return m;
     }
